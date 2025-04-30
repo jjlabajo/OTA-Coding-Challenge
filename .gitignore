@@ -1,0 +1,56 @@
+# --- Environment Files ---
+.env
+backend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# --- Dependency Directories ---
+/backend/vendor/
+/frontend/node_modules/
+
+# --- Build Output / Compiled Files ---
+# Next.js
+/frontend/.next/
+/frontend/out/
+# Laravel Mix/Vite (if used)
+/backend/public/build/
+/backend/public/hot
+
+# --- Laravel Storage ---
+# User uploads, cache, logs, sessions etc. Should not be versioned.
+/backend/storage/app/public/*
+!/backend/storage/app/public/.gitignore
+/backend/storage/framework/cache/*
+!/backend/storage/framework/cache/.gitignore
+/backend/storage/framework/sessions/*
+!/backend/storage/framework/sessions/.gitignore
+/backend/storage/framework/testing/*
+!/backend/storage/framework/testing/.gitignore
+/backend/storage/framework/views/*
+!/backend/storage/framework/views/.gitignore
+/backend/storage/logs/*
+!/backend/storage/logs/.gitignore
+
+# --- Laravel Bootstrap Cache ---
+/backend/bootstrap/cache/*
+!/backend/bootstrap/cache/.gitignore
+
+# --- Log Files ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- OS Generated Files ---
+.DS_Store
+Thumbs.db
+
+# --- IDE Directories (Common) ---
+.idea/
+.vscode/
+
+# --- Temporary Files ---
+*.tmp
+*~

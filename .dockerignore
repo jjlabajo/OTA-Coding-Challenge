@@ -1,0 +1,10 @@
+.git
+.gitignore
+**/.env
+**/vendor
+**/node_modules
+**/.next
+**/out
+**/build
+**/storage/logs/*
+# Add other files/dirs to ignore globally
