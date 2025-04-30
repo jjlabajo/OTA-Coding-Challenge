@@ -1,5 +1,3 @@
-// routes/api.php (Recommended)
-
 <?php
 
 use Illuminate\Http\Request;
@@ -30,7 +28,7 @@ Route::get('/testing/job-posts', function () {
     } catch (\Exception $e) {
         // Basic error handling
         report($e); // Log the error
-        return response()->json(['error' => 'Failed to retrieve job posts.'], 500);
+        return response()->json(['error' => 'Failed to retrieve job posts.', 'message' => $e->getMessage()], 500);
     }
 
 
