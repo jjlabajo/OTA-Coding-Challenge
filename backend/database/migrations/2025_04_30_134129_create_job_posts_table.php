@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB; // <-- Import DB facade
-use Carbon\Carbon;                 // <-- Import Carbon for timestamps
+use Carbon\Carbon;             // <-- Import Carbon for timestamps
 
 return new class extends Migration
 {
@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('occupation')->nullable(); // <occupation>
             $table->string('occupation_category')->nullable(); // <occupationCategory>
             $table->timestamp('posted_at')->nullable(); // <createdAt> from the XML
+            $table->enum('status', ['pending', 'approved', 'spam'])->default('pending'); // Added status column with default
             $table->timestamps(); // Laravel's standard created_at and updated_at
         });
 
@@ -54,6 +55,7 @@ return new class extends Migration
                 'occupation' => 'Software Developer',
                 'occupation_category' => 'Information Technology',
                 'posted_at' => $now->subDays(5), // Posted 5 days ago
+                'status' => 'approved', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -73,6 +75,7 @@ return new class extends Migration
                 'occupation' => 'Marketing Specialist',
                 'occupation_category' => 'Marketing & Advertising',
                 'posted_at' => $now->subDays(2), // Posted 2 days ago
+                'status' => 'pending', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -92,10 +95,11 @@ return new class extends Migration
                 'occupation' => 'Designer',
                 'occupation_category' => 'Design',
                 'posted_at' => $now->subDay(), // Posted yesterday
+                'status' => 'spam', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-             [
+            [
                 'external_id' => null, // Example with no external ID
                 'subcompany' => 'General Administration',
                 'office' => 'Main Office',
@@ -111,6 +115,7 @@ return new class extends Migration
                 'occupation' => 'Administrative Assistant',
                 'occupation_category' => 'Administration & Office Support',
                 'posted_at' => $now, // Posted today
+                'status' => 'pending', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
             ],

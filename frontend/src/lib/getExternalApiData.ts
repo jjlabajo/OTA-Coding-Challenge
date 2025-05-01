@@ -42,7 +42,7 @@ const fetchJobPostings = async (): Promise<JobPosting[]> => {
         ? parsedData['workzag-jobs'].position
         : [parsedData['workzag-jobs'].position];
 
-      return positionsRaw.map((pos) => ({
+      return positionsRaw.map((pos: PositionRaw) => ({
         id: parseInt(pos.id, 10),
         external_id: pos.id,
         subcompany: pos.subcompany,
@@ -59,8 +59,8 @@ const fetchJobPostings = async (): Promise<JobPosting[]> => {
         occupation: pos.occupation,
         occupation_category: pos.occupationCategory,
         posted_at: pos.createdAt, // Assuming createdAt from the XML maps to posted_at
-        created_at: new Date().toISOString(), // You might want to adjust this based on actual creation time if available
-        updated_at: new Date().toISOString(), // You might want to adjust this if there's an update timestamp in the XML
+        created_at: pos.createdAt, // You might want to adjust this based on actual creation time if available
+        updated_at: "", // You might want to adjust this if there's an update timestamp in the XML
       }));
     } else {
       console.error('Could not find job positions in the XML data.');
