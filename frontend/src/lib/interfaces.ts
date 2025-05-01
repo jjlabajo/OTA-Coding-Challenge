@@ -4,6 +4,16 @@ export interface JobPostCard {
     authorName: string;
     authorCompany: string;
     externalUrl?: string;
+    status?: string;
+}
+
+export interface User{
+  id?: number;
+  name: string;
+  email?: string;
+  email_verified_at?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface JobPosting {
@@ -17,7 +27,7 @@ export interface JobPosting {
   updated_at: string;
   company: string; // Optional as indicated
   user_id: number; // Optional and commented out
-  user_name: string;
+  user: User;
 }
 
 export interface JobDescriptionRaw {

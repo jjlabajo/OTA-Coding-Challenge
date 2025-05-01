@@ -6,6 +6,7 @@ use App\Models\JobPost;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class JobPostController extends Controller
 {
@@ -17,11 +18,28 @@ class JobPostController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $jobPosts = JobPost::all();
+            $jobPosts = JobPost::with('user')
+                        ->where('status', 'approved')->get();
             return response()->json($jobPosts);
         } catch (\Exception $e) {
             report($e);
             return response()->json(['error' => 'Failed to retrieve job posts.', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function userJobPosts(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user(); // Get the authenticated user instance
+            $jobPosts = JobPost::where('user_id', $user->id)
+                                ->with('user')
+                                ->latest() // Optional: Order by latest created
+                                ->get();
+
+            return response()->json($jobPosts);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['error' => 'Failed to retrieve user job posts.', 'message' => $e->getMessage()], 500);
         }
     }
 
@@ -53,10 +71,10 @@ class JobPostController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
             'description' => 'required|string',
             'company' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
+            'office' => 'required|string|max:255',
             // Add other relevant fields and their validation rules
         ]);
 
@@ -65,8 +83,21 @@ class JobPostController extends Controller
         }
 
         try {
-            // When creating, we can set the initial status to 'pending' or leave it as a default in the database
-            $jobPost = JobPost::create(array_merge($request->all(), ['status' => 'pending']));
+            // Associate the job post with the currently authenticated user
+            $user = Auth::user();
+            if (!$user) {
+                 return response()->json(['error' => 'User not authenticated.'], 401);
+            }
+
+            $jobPostData = $request->all();
+            $jobPostData['user_id'] = $user->id; // Set the user_id
+            $jobPostData['status'] = 'pending'; // Set the initial status
+
+            $jobPost = JobPost::create($jobPostData);
+
+            // Load the user relationship if you want to return it in the response
+            $jobPost->load('user');
+
             return response()->json($jobPost, 201); // 201 Created
         } catch (\Exception $e) {
             report($e);
@@ -121,6 +152,31 @@ class JobPostController extends Controller
         } catch (\Exception $e) {
             report($e);
             return response()->json(['error' => 'Failed to mark job post as spam.', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Remove the specified job post from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $jobPost = JobPost::findOrFail($id);
+
+            if (Auth::id() !== $jobPost->user_id) {
+                return response()->json(['error' => 'Unauthorized.'], 403);
+            }
+
+            $jobPost->delete();
+            return response()->json(['message' => 'Job post deleted successfully.'], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Job post not found.'], 404);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['error' => 'Failed to delete job post.', 'message' => $e->getMessage()], 500);
         }
     }
 }

@@ -110,7 +110,7 @@ const SignupPage = () => {
   };
 
   const handleJobBoardClick = () => {
-    router.push('/job-posts');
+    router.push('/');
   };
 
   return (

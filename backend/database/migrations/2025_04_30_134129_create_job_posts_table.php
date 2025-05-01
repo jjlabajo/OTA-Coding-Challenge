@@ -3,8 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB; // <-- Import DB facade
-use Carbon\Carbon;             // <-- Import Carbon for timestamps
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 return new class extends Migration
 {
@@ -41,7 +41,7 @@ return new class extends Migration
                 'status' => 'approved', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
-                'user_id' => 1, // Example user ID
+                'user_id' => 2, // Example user ID
                 'company' => 'Tech Innovations Inc.',
             ],
             [
@@ -52,7 +52,7 @@ return new class extends Migration
                 'status' => 'pending', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
-                'user_id' => 1, // Example user ID
+                'user_id' => 2, // Example user ID
                 'company' => 'Global Marketing Solutions',
             ],
             [
@@ -63,7 +63,7 @@ return new class extends Migration
                 'status' => 'spam', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
-                'user_id' => 1, // Example user ID
+                'user_id' => 2, // Example user ID
                 'company' => 'Creative Software Ltd.',
             ],
             [
@@ -74,7 +74,7 @@ return new class extends Migration
                 'status' => 'pending', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
-                'user_id' => 1, // Example user ID
+                'user_id' => 2, // Example user ID
                 'company' => 'United Enterprises',
             ],
         ]);

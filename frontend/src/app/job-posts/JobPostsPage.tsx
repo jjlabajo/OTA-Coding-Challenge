@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { JobPostCard, JobPosting, PositionRaw } from "@/lib/interfaces";
 import { fetchJobPostings } from "@/lib/getExternalApiData"; // Adjust the import path as needed
 
-export default function JobsPage() {
+export default function JobPostsPage() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const externalUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
   const [jobPosts, setJobPosts] = useState<JobPostCard[] | undefined>();
@@ -24,7 +24,7 @@ export default function JobsPage() {
           const transformedInternalJobs: JobPostCard[] = internalJobsRaw.map((job: JobPosting) => ({
             url: `/job-posts/${job.id}`,
             title: job.position,
-            authorName: job.user_name,
+            authorName: job.user.name,
             authorCompany: job.company,
           }));
 

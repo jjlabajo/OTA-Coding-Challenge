@@ -40,14 +40,7 @@ Welcome to the OTA Coding Challenge project! This application consists of a Lara
     ```
     * **Note:** Ensure the `backend/.env` file also exists (Laravel needs it). You can copy `backend/.env.example` to `backend/.env` if needed. The `APP_KEY` must be set either in the root `.env` (passed by Docker Compose) or directly in `backend/.env`. If it's not set in either, generate one using the command in the "Backend Commands" section below *after* starting the containers.
 
-3.  **Build and Start Containers:**
-    * Open your terminal in the project root (`OTA-Coding-Challenge`).
-    * Run the following command to build the images (if they don't exist or need updating) and start the services in detached mode:
-    ```bash
-    docker-compose up -d --build
-    ```
-
-4.  **Create Frontend Root Environment File:**
+3.  **Create Frontend Root Environment File:**
     * Create a new file named `.env.development.local` in the project root (`OTA-Coding-Challenge/frontend/.env`).
     ```env
     # OTA-Coding-Challenge/frontend/.env
@@ -56,6 +49,15 @@ Welcome to the OTA Coding Challenge project! This application consists of a Lara
     NEXT_PUBLIC_EXTERNAL_API_URL=https://mrge-group-gmbh.jobs.personio.de
 
     ```
+
+4.  **Build and Start Containers:**
+    * Open your terminal in the project root (`OTA-Coding-Challenge`).
+    * Run the following command to build the images (if they don't exist or need updating) and start the services in detached mode:
+    ```bash
+    docker-compose up -d --build
+    ```
+
+
 
 ## 🚀 Running the Application
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class JobPost extends Model
 {
@@ -16,32 +17,15 @@ class JobPost extends Model
      */
     protected $fillable = [
         'external_id',
-        'subcompany',
+        'company',
         'office',
-        'department',
-        'recruiting_category',
-        'name',
+        'position',
         'description',
         'employment_type',
-        'seniority',
-        'schedule',
-        'years_of_experience',
-        'keywords',
-        'occupation',
-        'occupation_category',
         'status',
-        'posted_at',
+        'user_id'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'posted_at' => 'datetime',
-        // No need to cast other string types
-    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -63,4 +47,12 @@ class JobPost extends Model
      * return $this->hasMany(Application::class);
      * }
      */
+
+    /**
+     * Get the user that created the job post.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

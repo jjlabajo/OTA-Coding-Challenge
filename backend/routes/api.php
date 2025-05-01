@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\JobPostController;
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -10,10 +9,6 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 */
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request): mixed {
-    return $request->user();
-});
 
 // --- Route using a dedicated Controller ---
 Route::get('/job-posts', [JobPostController::class, 'index']);
@@ -24,3 +19,10 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/job-posts', [JobPostController::class, 'userJobPosts']);
+    Route::post('/job-posts', [JobPostController::class, 'store']);
+    Route::delete('/job-posts/{id}', [JobPostController::class, 'destroy']);
+});

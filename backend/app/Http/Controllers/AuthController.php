@@ -36,6 +36,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'user_type' => 'recruiter'
         ]);
 
         // Generate a Sanctum token for the new user

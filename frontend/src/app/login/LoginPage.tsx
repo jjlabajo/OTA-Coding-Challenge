@@ -81,7 +81,7 @@ const LoginPage = () => {
   };
 
   const handleJobBoardClick = () => {
-    router.push('/job-posts');
+    router.push('/');
   };
 
   return (
