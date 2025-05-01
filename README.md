@@ -47,6 +47,16 @@ Welcome to the OTA Coding Challenge project! This application consists of a Lara
     docker-compose up -d --build
     ```
 
+4.  **Create Frontend Root Environment File:**
+    * Create a new file named `.env.development.local` in the project root (`OTA-Coding-Challenge/frontend/.env`).
+    ```env
+    # OTA-Coding-Challenge/frontend/.env
+
+    NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    NEXT_PUBLIC_EXTERNAL_API_URL=https://mrge-group-gmbh.jobs.personio.de
+
+    ```
+
 ## 🚀 Running the Application
 
 * **Frontend:** Access the Next.js application in your browser at [http://localhost:3000](http://localhost:3000)
