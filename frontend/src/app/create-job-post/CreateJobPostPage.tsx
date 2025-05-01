@@ -5,6 +5,7 @@ import JobPostingForm, { JobPosting } from './JobPostingForm';
 import Button from '@/ui/components/Button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,6 +13,7 @@ type JobFormData = Omit<JobPosting, 'id' | 'created_at' | 'updated_at' | 'user'>
 
 const CreateJobPostPage: React.FC = () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter()
   const { token } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +45,9 @@ const CreateJobPostPage: React.FC = () => {
       console.log('Submission successful:', result);
 
       setSubmitStatus({ type: 'success', message: 'Job posting created successfully!' });
+      setTimeout(() => {
+        router.push("/")
+      }, 2000);
 
 
     } catch (error) {

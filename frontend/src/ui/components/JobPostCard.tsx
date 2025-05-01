@@ -5,19 +5,24 @@ import { useRouter } from 'next/navigation';
 import { JobPostCard } from '@/lib/interfaces';
 import { ExternalLink } from 'lucide-react';
 
-const ResourceCard: React.FC<JobPostCard> = ({
+const JobPostCardComponent: React.FC<JobPostCard> = ({
   url, // Use the actual imageUrl prop for the main image
   title,
   authorName,
   authorCompany,
   externalUrl = '',
   status = '',
+  description = ''
 }) => {
   const router = useRouter();
 
   // Get the first letter, handle empty names, and convert to uppercase
   const firstLetter = authorName ? authorName.charAt(0).toUpperCase() : '?';
   const isExternal = externalUrl != '';
+
+  // Remove HTML tags from the description and then truncate
+  const textOnlyDescription = description.replace(/<[^>]*>/g, '');
+  const truncatedDescription = textOnlyDescription.length > 100 ? `${textOnlyDescription.substring(0, 100)}...` : textOnlyDescription;
 
   const handleRedirect = () => {
     if (isExternal) {
@@ -63,6 +68,8 @@ const ResourceCard: React.FC<JobPostCard> = ({
       </div>
       <div className="p-4 flex flex-col flex-grow">
         <h3 className="text-lg font-semibold mb-2 text-gray-800">{title}</h3>
+        {/* Rendering the truncated description with HTML tags removed */}
+        <p className="text-sm text-gray-600 mb-2">{truncatedDescription}</p>
         {/* Footer Section */}
         <div className="mt-auto pt-4 border-t border-gray-200 flex items-center justify-between">
           {/* Left side: Author Info */}
@@ -86,4 +93,4 @@ const ResourceCard: React.FC<JobPostCard> = ({
   );
 };
 
-export default ResourceCard;
+export default JobPostCardComponent;

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { JobPosting } from '@/lib/interfaces';
 import { useParams, useRouter } from 'next/navigation';
 import Button from '@/ui/components/Button';
-import { MoveLeft, Trash2 } from 'lucide-react';
+import { MoveLeft, Trash2, CheckCircle, Flag } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -40,6 +40,7 @@ const JobPostPage: React.FC = () => {
                     return;
                 }
                 const data = await response.json();
+                console.log(data)
                 setJob(data);
             } catch (error) {
                 console.error("An error occurred while fetching the job:", error);
@@ -51,15 +52,26 @@ const JobPostPage: React.FC = () => {
         }
     }, [apiUrl, id]);
 
-    const handleDelete = async () => {
+    
+    const handleAction = async (action: string) => {
         if (!id) {
             console.error('Job ID is missing.');
             return;
         }
+        let method = 'DELETE'
+        let path = `/job-posts/${id}`
+        if(action == 'approve'){
+            path = `/job-posts/${id}/approve`
+            method = 'PATCH'
+        }
+        if(action == 'markAsSpam'){
+            path = `/job-posts/${id}/markAsSpam`
+            method = 'PATCH'
+        }
 
         try {
-            const response = await fetch(`${apiUrl}/job-posts/${id}`, {
-                method: 'DELETE',
+            const response = await fetch(`${apiUrl}${path}`, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
@@ -67,25 +79,36 @@ const JobPostPage: React.FC = () => {
             });
 
             if (response.ok) {
-                console.log('Job posting deleted successfully!');
-                router.push('/');
+                console.log('Job post action successful: ' + action);
+                router.push(action == 'delete' ? '/' : '/notifications');
             } else {
                 const errorData = await response.json();
-                console.error('Failed to delete job posting:', errorData);
+                console.error('Failed:', errorData);
             }
         } catch (error) {
-            console.error('An error occurred while deleting the job posting:', error);
+            console.error('Error:', error);
         }
     };
+
+    const handleDelete = async () => {
+        await handleAction("delete")
+    }
+
+
+    const handleApprove = async ()=>{
+        await handleAction("approve")
+    }
+
+    const handleMarkAsSpam = async ()=>{
+        await handleAction("markAsSpam")
+    }
 
     return (
         <div className="min-h-screen">
             <main className="container mx-auto py-8 px-6">
-                <Link href="/">
-                    <Button className="flex items-center">
-                        <MoveLeft className="mr-2 w-4 h-4" /> Job Board
-                    </Button>
-                </Link>
+                <Button className="flex items-center" onClick={() => window.history.back()}>
+                    <MoveLeft className="mr-2 w-4 h-4" /> Go Back
+                </Button>
                 <div className="bg-white shadow-lg rounded-lg p-8 mt-8">
                     <div className='flex items-center justify-between'>
                         <h1 className="text-3xl font-bold text-gray-900">{job.position}</h1>
@@ -98,6 +121,24 @@ const JobPostPage: React.FC = () => {
                                 <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                                 Delete
                                 </button>
+                            )}
+                            {user?.user_type === 'moderator' && (
+                                <div className="inline-flex space-x-2">
+                                    <button
+                                        onClick={handleApprove}
+                                        className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition ease-in-out duration-150 disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed"
+                                        disabled={job.status == 'approved'}
+                                    >
+                                        <CheckCircle className="h-4 w-4 mr-2" aria-hidden="true" />Approve
+                                    </button>
+                                    <button
+                                        onClick={handleMarkAsSpam}
+                                        className="inline-flex items-center px-3 py-1.5 bg-yellow-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition ease-in-out duration-150 disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed"
+                                        disabled={job.status == 'spam'}
+                                    >
+                                        <Flag className="h-4 w-4 mr-2" aria-hidden="true" /> Mark as Spam
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>

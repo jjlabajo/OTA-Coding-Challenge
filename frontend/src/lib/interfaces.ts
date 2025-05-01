@@ -4,6 +4,7 @@ export interface JobPostCard {
     authorName: string;
     authorCompany: string;
     externalUrl?: string;
+    description?: string;
     status?: string;
 }
 
@@ -32,7 +33,9 @@ export interface JobPosting {
 
 export interface JobDescriptionRaw {
   name: string;
-  value: string;
+  value: {
+    __cdata: string
+  };
 }
 
 export interface PositionRaw {

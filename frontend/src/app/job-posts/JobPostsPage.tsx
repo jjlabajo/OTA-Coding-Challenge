@@ -26,15 +26,25 @@ export default function JobPostsPage() {
             title: job.position,
             authorName: job.user.name,
             authorCompany: job.company,
+            description: job.description,
           }));
 
-          const transformedExternalJobs: JobPostCard[] = externalJobs.map((job: PositionRaw) => ({
-            url: `/job/${job.id}`, // Use external_id as it's from the external source
-            title: job.name,
-            authorName: job.department || job.office, // Adjust based on available data
-            authorCompany: job.subcompany || 'External', // Indicate it's an external job
-            externalUrl
-          }));
+          const transformedExternalJobs: JobPostCard[] = externalJobs.map((job: PositionRaw) => {
+            console.log(job);
+            let descriptionText = '';
+            if (job?.jobDescriptions?.jobDescription && Array.isArray(job.jobDescriptions.jobDescription) && job.jobDescriptions.jobDescription.length > 0) {
+              descriptionText = job.jobDescriptions.jobDescription.map(x => x.value.__cdata).join("");
+            }
+          
+            return {
+              url: `/job/${job.id}`, // Use external_id as it's from the external source
+              title: job.name,
+              authorName: job.department || job.office || 'N/A', // Added fallback if both are missing
+              authorCompany: job.subcompany || 'External', // Indicate it's an external job
+              externalUrl,
+              description: descriptionText,
+            };
+          });
 
           // Combine the job postings from both sources
           setJobPosts([...transformedInternalJobs, ...transformedExternalJobs]);
