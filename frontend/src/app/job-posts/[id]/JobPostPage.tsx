@@ -26,7 +26,7 @@ const JobPostPage: React.FC = () => {
     const [job, setJob] = useState(mockJob);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const { id } = useParams();
-    const { user, token } = useAuth();
+    const { user, token, setRerender } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -80,6 +80,7 @@ const JobPostPage: React.FC = () => {
 
             if (response.ok) {
                 console.log('Job post action successful: ' + action);
+                setRerender(new Date().getTime())
                 router.push(action == 'delete' ? '/' : '/notifications');
             } else {
                 const errorData = await response.json();

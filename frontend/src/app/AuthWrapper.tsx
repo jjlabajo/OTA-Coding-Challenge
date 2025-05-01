@@ -18,58 +18,39 @@ const excludedPaths = ["/signup", "/login"];
 
 const Wrapper = ({ children }: WrapperProps) => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'; // Provide a default
-  const { token, isAuthenticated, user, logout } = useAuth();
+  const { token, isAuthenticated, user, logout, rerender } = useAuth();
   const [notificationCount, setNotificationCount] = useState<number>(0);
-  const eventSourceRef = useRef<EventSource | null>(null);
   const pathname = usePathname();
 
-  const isModerator = isAuthenticated && user?.user_type?.toUpperCase() === 'MODERATOR';
-
   useEffect(() => {
-    if (!isModerator || !apiUrl) {
-      return; // Don't connect if not a moderator or apiUrl is missing
-    }
-
-    const connectSSE = () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
-
-      const sseUrl = `${apiUrl}/moderator/notification-stream`;
-      const es = new EventSource(sseUrl, { withCredentials: true });
-      eventSourceRef.current = es;
-
-      es.onopen = () => {
-        // console.log("SSE Connection Opened"); // Optional logging
-      };
-
-      es.addEventListener('notification_count_update', (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          setNotificationCount(data.count);
-        } catch (error) {
-          console.error("Failed to parse SSE data:", error);
+    const fetchInternalJobData = async () => {
+      if (apiUrl && token) {
+        if(user.user_type != 'moderator'){
+          return
         }
-      });
-
-      es.onerror = (error) => {
-        console.error("SSE Error:", error);
-        es.close();
-        // Optional: Implement a more robust retry mechanism if needed
-        setTimeout(connectSSE, 10000); // Retry connection after 10 seconds
-      };
-    };
-
-    connectSSE();
-
-    return () => {
-      if (eventSourceRef.current) {
-        // console.log("Closing SSE Connection"); // Optional logging
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
+        try {
+          const response = await fetch(`${apiUrl}/moderator/notification-count`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+          });
+          if (!response.ok) {
+            console.error(`Failed to fetch job posts: ${response.status}`);
+            return;
+          }
+          const data: { count: number } = await response.json();
+          setNotificationCount(data.count)
+        } catch (error) {
+          console.error("Error fetching internal job data:", error);
+        }
       }
     };
-  }, [isModerator, apiUrl]); // Reconnect if moderator status or apiUrl changes
+
+    fetchInternalJobData();
+  }, [apiUrl, token, rerender]);
+
+  const isModerator = isAuthenticated && user?.user_type?.toUpperCase() === 'MODERATOR';
 
   const shouldShowHeader = !excludedPaths.includes(pathname);
 
@@ -92,7 +73,7 @@ const Wrapper = ({ children }: WrapperProps) => {
       {shouldShowHeader && (
         <Header>
           {isAuthenticated ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 filter drop-shadow-md shadow-black/75 ">
               <span>
                 {user?.user_type && (
                   <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold mr-2 ${badgeColorClass}`}>

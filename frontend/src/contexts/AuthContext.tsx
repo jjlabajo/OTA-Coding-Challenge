@@ -11,6 +11,8 @@ interface AuthContextType {
   token: string | null;
   setToken: (token: string | null) => void;
   logout: () => void;
+  rerender: number;
+  setRerender: (rerender: number | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const [rerender, setRerender] = useState<number>(0)
 
   // Function to handle logout
     const logout = async () => {
@@ -99,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token, user]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser, token, setToken, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser, token, setToken, logout, rerender, setRerender }}>
       {children}
     </AuthContext.Provider>
   );
