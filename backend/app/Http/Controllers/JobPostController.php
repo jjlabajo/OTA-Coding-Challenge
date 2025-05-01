@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
+use Symfony\Component\HttpFoundation\StreamedResponse; 
+
 class JobPostController extends Controller
 {
     /**
@@ -43,6 +45,155 @@ class JobPostController extends Controller
         }
     }
 
+    public function moderatorJobPosts(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            if($user->user_type != 'moderator'){
+                return response()->json(['error' => 'Failed to retrieve moderator job posts.', 'message' => "Only moderators can retrieve these job posts."], 500);
+            }
+            $jobPosts = JobPost::where('status', 'pending')
+                                ->with('user')
+                                ->latest()
+                                ->get();
+
+            return response()->json($jobPosts);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['error' => 'Failed to retrieve user job posts.', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function moderatorNotifications(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            if ($user->user_type != 'moderator') {
+                return response()->json(['error' => 'Failed to retrieve moderator job posts.', 'message' => "Only moderators can retrieve these job posts."], 403);
+            }
+
+            $firstJobPosts = JobPost::with('user')
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->groupBy('user_id')
+                ->map(function ($posts) {
+                    return $posts->first();
+                })
+                ->sortByDesc('created_at')
+                ->values();
+
+            return response()->json($firstJobPosts);
+
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['error' => 'Failed to retrieve user job posts.', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    
+    private function getNotificationCount(): int
+    {
+        return JobPost::with('user')
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->groupBy('user_id')
+                ->map(function ($posts) {
+                    return $posts->first();
+                })
+                ->sortByDesc('created_at')
+                ->values()
+                ->where("status", "pending")
+                ->count();
+    }
+
+    public function moderatorNotificationCount(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            if ($user->user_type != 'moderator') {
+                return response()->json(['error' => 'Failed to retrieve moderator job posts.', 'message' => "Only moderators can retrieve these job posts."], 403);
+            }
+
+            $count = $this->getNotificationCount();
+
+            return response()->json([ "count" => $count ]);
+
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['error' => 'Failed to retrieve user job posts.', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function streamModeratorNotifications(Request $request)
+    {
+        // Ensure user is authenticated (though middleware should handle this)
+        if (!Auth::check()) {
+            abort(401);
+        }
+
+        $response = new StreamedResponse(function() {
+            $lastCount = -1; // Initialize with a value that ensures the first send
+
+            while (true) {
+                // 1. Check for client disconnection
+                if (connection_aborted()) {
+                    break; // Exit the loop if the client has disconnected
+                }
+
+                // 2. Get the current notification count
+                //    Replace this with your actual logic to count pending jobs or notifications
+                $currentCount = JobPost::with('user')
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->groupBy('user_id')
+                ->map(function ($posts) {
+                    return $posts->first();
+                })
+                ->sortByDesc('created_at')
+                ->values()
+                ->where("status", "pending")
+                ->count();
+
+                // 3. Send update only if the count has changed
+                if ($currentCount !== $lastCount) {
+                    // SSE Format: event: <event_name>\ndata: <json_data>\n\n
+                    echo "event: notification_count_update\n";
+                    echo "data: " . json_encode(['count' => $currentCount]) . "\n\n";
+
+                    // Update the last count
+                    $lastCount = $currentCount;
+
+                    // 4. Flush the output buffer to send data immediately
+                    ob_flush();
+                    flush();
+                } else {
+                    // Send a heartbeat comment to keep the connection alive
+                    // (optional, but good practice)
+                     echo ": ping\n\n";
+                     ob_flush();
+                     flush();
+                }
+
+
+                // 5. Wait for a short period before checking again
+                //    Adjust the sleep duration based on how real-time you need it
+                //    and server resource considerations. 5-15 seconds is common.
+                sleep(10); // Check every 10 seconds
+            }
+        });
+
+        // Set headers essential for SSE
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+        // Crucial for Nginx configurations to disable response buffering
+        $response->headers->set('X-Accel-Buffering', 'no');
+
+        return $response;
+    }
+
+    
     /**
      * Display the specified job post.
      *
@@ -111,9 +262,14 @@ class JobPostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function approve(int $id): JsonResponse
+    public function approve(Request $request, int $id): JsonResponse
     {
         try {
+            $user = $request->user();
+            if($user->user_type != 'moderator'){
+                return response()->json(['error' => 'Failed to approve job post.', 'message' => "Only moderators can do this."], 500);
+            }
+            
             $jobPost = JobPost::findOrFail($id);
 
             if ($jobPost->status === 'approved') {
@@ -136,9 +292,14 @@ class JobPostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function markAsSpam(int $id): JsonResponse
+    public function markAsSpam(Request $request, int $id): JsonResponse
     {
         try {
+            $user = $request->user();
+            if($user->user_type != 'moderator'){
+                return response()->json(['error' => 'Failed to mark job post as spam.', 'message' => "Only moderators can do this."], 500);
+            }
+
             $jobPost = JobPost::findOrFail($id);
 
             if ($jobPost->status === 'spam') {

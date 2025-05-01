@@ -23,6 +23,13 @@ Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:san
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/job-posts', [JobPostController::class, 'userJobPosts']);
+    Route::get('/moderator/job-posts', [JobPostController::class, 'moderatorJobPosts']);
+    Route::get('/moderator/notifications', [JobPostController::class, 'moderatorNotifications']);
+    Route::get('/moderator/notification-count', [JobPostController::class, 'moderatorNotificationCount']);
+    Route::get('/moderator/notification-stream', [NotificationController::class, 'streamModeratorNotifications']);
+    
     Route::post('/job-posts', [JobPostController::class, 'store']);
     Route::delete('/job-posts/{id}', [JobPostController::class, 'destroy']);
+    Route::patch('/job-posts/{id}/approve', [JobPostController::class, 'approve']);
+    Route::patch('/job-posts/{id}/markAsSpam', [JobPostController::class, 'markAsSpam']);
 });

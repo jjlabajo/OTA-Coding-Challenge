@@ -38,7 +38,7 @@ return new class extends Migration
                 'employment_type' => 'Full-time',
                 'office' => 'Main Office',
                 'description' => '<h1>About the Role</h1><p>We are seeking an experienced Backend Engineer...</p><ul><li>Develop APIs</li><li>Maintain Databases</li></ul>',
-                'status' => 'approved', // Example status
+                'status' => 'pending', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
                 'user_id' => 2, // Example user ID
@@ -49,7 +49,7 @@ return new class extends Migration
                 'employment_type' => 'Full-time',
                 'office' => 'Downtown Branch',
                 'description' => '<h2>Join Our Team!</h2><p>Looking for a creative Digital Marketing Specialist to manage campaigns...</p>',
-                'status' => 'pending', // Example status
+                'status' => 'approved', // Example status
                 'created_at' => $now,
                 'updated_at' => $now,
                 'user_id' => 2, // Example user ID
