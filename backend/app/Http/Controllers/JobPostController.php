@@ -116,7 +116,7 @@ class JobPostController extends Controller
 
             $count = $this->getNotificationCount();
 
-            return response()->json([ "count" => $count ]);
+            return response()->json(["count" => $count]);
 
         } catch (\Exception $e) {
             report($e);
@@ -124,73 +124,42 @@ class JobPostController extends Controller
         }
     }
 
-
     public function streamModeratorNotifications(Request $request)
     {
-        // Ensure user is authenticated (though middleware should handle this)
-        if (!Auth::check()) {
-            abort(401);
-        }
+        try {
+            $user = $request->user();
 
-        $response = new StreamedResponse(function() {
-            $lastCount = -1; // Initialize with a value that ensures the first send
-
-            while (true) {
-                // 1. Check for client disconnection
-                if (connection_aborted()) {
-                    break; // Exit the loop if the client has disconnected
-                }
-
-                // 2. Get the current notification count
-                //    Replace this with your actual logic to count pending jobs or notifications
-                $currentCount = JobPost::with('user')
-                ->orderBy('created_at', 'asc')
-                ->get()
-                ->groupBy('user_id')
-                ->map(function ($posts) {
-                    return $posts->first();
-                })
-                ->sortByDesc('created_at')
-                ->values()
-                ->where("status", "pending")
-                ->count();
-
-                // 3. Send update only if the count has changed
-                if ($currentCount !== $lastCount) {
-                    // SSE Format: event: <event_name>\ndata: <json_data>\n\n
-                    echo "event: notification_count_update\n";
-                    echo "data: " . json_encode(['count' => $currentCount]) . "\n\n";
-
-                    // Update the last count
-                    $lastCount = $currentCount;
-
-                    // 4. Flush the output buffer to send data immediately
-                    ob_flush();
-                    flush();
-                } else {
-                    // Send a heartbeat comment to keep the connection alive
-                    // (optional, but good practice)
-                     echo ": ping\n\n";
-                     ob_flush();
-                     flush();
-                }
-
-
-                // 5. Wait for a short period before checking again
-                //    Adjust the sleep duration based on how real-time you need it
-                //    and server resource considerations. 5-15 seconds is common.
-                sleep(10); // Check every 10 seconds
+            if (!$user || $user->user_type != 'moderator') {
+                return response()->json([
+                    'error' => 'Unauthorized.',
+                    'message' => "Only moderators can access this information."
+                ], 403);
             }
-        });
+            $callback = function () {
+                $count = $this->getNotificationCount();
+                $data = ["count" => $count];
+                echo json_encode($data);
+            };
 
-        // Set headers essential for SSE
-        $response->headers->set('Content-Type', 'text/event-stream');
-        $response->headers->set('Cache-Control', 'no-cache');
-        $response->headers->set('Connection', 'keep-alive');
-        // Crucial for Nginx configurations to disable response buffering
-        $response->headers->set('X-Accel-Buffering', 'no');
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'no-cache',
+                'X-Accel-Buffering' => 'no',
+                'Access-Control-Allow-Origin' => '*',
+                'Access-Control-Allow-Credentials' => 'true',
+                'Access-Control-Max-Age' => '86400',
+                'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+            ];
 
-        return $response;
+            return new StreamedResponse($callback, 200, $headers);
+
+        } catch (Exception $e) {
+            report($e);
+            return response()->json([
+                'error' => 'Failed to retrieve notification count.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     
