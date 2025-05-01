@@ -12,7 +12,7 @@ interface AuthContextType {
   setToken: (token: string | null) => void;
   logout: () => void;
   rerender: number;
-  setRerender: (rerender: number | null) => void;
+  setRerender: (rerender: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

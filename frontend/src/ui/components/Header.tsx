@@ -9,7 +9,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
 
   return (
     // Apply the custom animation class and base text color
-    <header className="header-scroll-animation text-white">
+    <header className="header-scroll-animation text-white bg-[#212427]">
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center transition-all duration-300"> {/* Optional: transition for padding/height if needed */}
         {/* Logo */}
         <div className="flex-shrink-0">

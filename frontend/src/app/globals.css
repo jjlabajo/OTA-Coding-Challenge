@@ -31,9 +31,9 @@ body {
 
 @layer utilities {
   @keyframes fade-header-background {
-    from, 0% { background-color: transparent; box-shadow: none; }
-    1% { background-color: transparent; box-shadow: none; }
-    to { background-color: transparent; box-shadow: none; }
+    from, 0% { box-shadow: none; }
+    1% { box-shadow: none; }
+    to { box-shadow: none; }
   }
 
   /* Class to apply the animation */
