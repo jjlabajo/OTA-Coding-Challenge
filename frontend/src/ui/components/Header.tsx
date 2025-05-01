@@ -1,11 +1,10 @@
-// components/Header.tsx
-// NO 'use client' needed
-import React from 'react'; // Remove useState, useEffect
-import Image from 'next/image';
-import Link from 'next/link';
-import ConsentButton from './Button';
+import React, { ReactNode } from 'react';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  children?: ReactNode;
+}
+
+const Header: React.FC<HeaderProps> = ({ children }) => {
   // No state or effect needed
 
   return (
@@ -24,9 +23,7 @@ const Header: React.FC = () => {
         <div className="flex items-center space-x-4">
           <div className="hidden md:flex items-center space-x-4 text-xs text-gray-400">
           </div>
-          <ConsentButton>
-            Log in
-          </ConsentButton>
+          {children}
         </div>
       </nav>
     </header>

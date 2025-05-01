@@ -7,26 +7,18 @@ export interface JobPostCard {
 }
 
 export interface JobPosting {
-    id: number;
-    external_id: string | null;
-    subcompany: string;
-    office: string;
-    department: string;
-    recruiting_category: string;
-    name: string;
-    description: string;
-    employment_type: string;
-    seniority: string;
-    schedule: string;
-    years_of_experience: string;
-    keywords: string;
-    occupation: string;
-    occupation_category: string;
-    posted_at: string;
-    created_at: string;
-    updated_at: string;
+  id: number;
+  position: string;
+  employment_type: string;
+  office: string;
+  description: string;
+  status: string; // Optional as indicated
+  created_at: string;
+  updated_at: string;
+  company: string; // Optional as indicated
+  user_id: number; // Optional and commented out
+  user_name: string;
 }
-
 
 export interface JobDescriptionRaw {
   name: string;

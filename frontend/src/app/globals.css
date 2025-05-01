@@ -26,40 +26,24 @@ body {
 }
 
 body {
-  /* Example: set a base font color */
   @apply text-gray-900;
 }
 
-/* In your CSS file (e.g., styles/globals.css) */
 @layer utilities {
-  /* Define the animation */
   @keyframes fade-header-background {
-    /* Stay transparent for the very first part of the scroll range */
     from, 0% { background-color: transparent; box-shadow: none; }
-    /* Become fully opaque quickly after scrolling starts */
-    /* Adjust the percentage (e.g., 1% or 5%) based on how fast you want the transition */
     1% { background-color: transparent; box-shadow: none; }
-    /* Stay opaque for the rest of the scroll */
     to { background-color: transparent; box-shadow: none; }
   }
 
   /* Class to apply the animation */
   .header-scroll-animation {
-    /* Basic sticky styles */
     position: sticky;
     top: 0;
     z-index: 50;
     width: 100%;
 
-    /* Link the animation */
-    animation: fade-header-background linear forwards; /* 'forwards' keeps the end state */
-    /* Link animation progress to the scroll position of the document */
-    animation-timeline: scroll(root block); /* scroll() is now preferred over scroll(root) */
-
-    /* Define the scroll range that controls the animation */
-    /* Starts when the scroll container (document) starts scrolling */
-    /* Ends after scrolling down, e.g., 100px (adjust as needed) */
-    animation-range-start: 0px;
-    animation-range-end: 100px; /* The animation completes over the first 100px of scroll */
+    animation: fade-header-background linear forwards; 
+    backdrop-filter: blur(10px);
   }
 }

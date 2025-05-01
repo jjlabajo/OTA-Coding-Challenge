@@ -1,7 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { JobPostCard } from '@/lib/interfaces'
+import { ExternalLink } from 'lucide-react';
 
 const ResourceCard: React.FC<JobPostCard> = ({
   url, // Use the actual imageUrl prop for the main image
@@ -10,11 +12,22 @@ const ResourceCard: React.FC<JobPostCard> = ({
   authorCompany,
   externalUrl = ""
 }) => {
+  const router = useRouter();
+
   // Get the first letter, handle empty names, and convert to uppercase
   const firstLetter = authorName ? authorName.charAt(0).toUpperCase() : '?';
+  const isExternal = externalUrl != ""
+
+  const handleRedirect = () => {
+    if (isExternal) {
+      window.open(externalUrl + url, '_blank');
+    } else {
+      router.push(url);
+    }
+  };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+    <div onClick={handleRedirect} className="cursor-pointer bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
       <div className="relative w-full h-48 bg-gray-200">
         <Image
           // Using a placeholder for the main image as per original code
@@ -39,9 +52,7 @@ const ResourceCard: React.FC<JobPostCard> = ({
             </div>
           </div>
           {/* Right side: View Job Button */}
-          <a href={externalUrl + url} target='_blank' className="text-sm font-medium py-1 px-3 rounded transition-colors duration-200 cursor-pointer hover:underline">
-            View Job
-          </a>
+          { isExternal && <ExternalLink className='ml-3 h-4 w-4' /> }
         </div>
       </div>
     </div>

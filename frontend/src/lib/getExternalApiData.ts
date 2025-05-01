@@ -30,10 +30,12 @@ const extractFullDescription = (jobDescriptions: PositionRaw['jobDescriptions'])
   return descriptions.map((desc: JobDescriptionRaw) => desc.value || '').join('\n\n');
 };
 
-const fetchJobPostings = async (): Promise<JobPosting[]> => {
+const fetchJobPostings = async (): Promise<PositionRaw[]> => {
+  const externalApiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
+  
   try {
     const response = await axios.get(
-      'https://mrge-group-gmbh.jobs.personio.de/xml'
+      externalApiUrl + '/xml'
     );
     const parsedData: WorkzagJobsRaw = parser.parse(response.data);
 
@@ -42,26 +44,7 @@ const fetchJobPostings = async (): Promise<JobPosting[]> => {
         ? parsedData['workzag-jobs'].position
         : [parsedData['workzag-jobs'].position];
 
-      return positionsRaw.map((pos: PositionRaw) => ({
-        id: parseInt(pos.id, 10),
-        external_id: pos.id,
-        subcompany: pos.subcompany,
-        office: pos.office,
-        department: pos.department,
-        recruiting_category: pos.recruitingCategory,
-        name: pos.name,
-        description: extractFullDescription(pos.jobDescriptions),
-        employment_type: pos.employmentType,
-        seniority: pos.seniority,
-        schedule: pos.schedule,
-        years_of_experience: pos.yearsOfExperience,
-        keywords: pos.keywords,
-        occupation: pos.occupation,
-        occupation_category: pos.occupationCategory,
-        posted_at: pos.createdAt, // Assuming createdAt from the XML maps to posted_at
-        created_at: pos.createdAt, // You might want to adjust this based on actual creation time if available
-        updated_at: "", // You might want to adjust this if there's an update timestamp in the XML
-      }));
+      return positionsRaw;
     } else {
       console.error('Could not find job positions in the XML data.');
       return [];

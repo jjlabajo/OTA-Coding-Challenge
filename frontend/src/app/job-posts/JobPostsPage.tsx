@@ -3,12 +3,14 @@
 import Hero from "@/ui/components/Hero";
 import JobPostCardComponent from "@/ui/components/JobPostCard";
 import { useEffect, useState } from "react";
-import { JobPostCard, JobPosting } from "@/lib/interfaces";
+import { JobPostCard, JobPosting, PositionRaw } from "@/lib/interfaces";
 import { fetchJobPostings } from "@/lib/getExternalApiData"; // Adjust the import path as needed
 
 export default function JobsPage() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const externalUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
   const [jobPosts, setJobPosts] = useState<JobPostCard[] | undefined>();
+  console.log(externalUrl)
 
   useEffect(() => {
     const fetchAllJobData = async () => {
@@ -20,18 +22,18 @@ export default function JobsPage() {
           const [internalJobsRaw, externalJobs] = await Promise.all([internalApiPromise, externalApiPromise]);
 
           const transformedInternalJobs: JobPostCard[] = internalJobsRaw.map((job: JobPosting) => ({
-            url: `/jobs/${job.id}`,
-            title: job.name,
-            authorName: job.department,
-            authorCompany: job.subcompany,
+            url: `/job-posts/${job.id}`,
+            title: job.position,
+            authorName: job.user_name,
+            authorCompany: job.company,
           }));
 
-          const transformedExternalJobs: JobPostCard[] = externalJobs.map((job: JobPosting) => ({
-            url: `/job/${job.external_id}`, // Use external_id as it's from the external source
+          const transformedExternalJobs: JobPostCard[] = externalJobs.map((job: PositionRaw) => ({
+            url: `/job/${job.id}`, // Use external_id as it's from the external source
             title: job.name,
             authorName: job.department || job.office, // Adjust based on available data
             authorCompany: job.subcompany || 'External', // Indicate it's an external job
-            externalUrl: 'https://mrge-group-gmbh.jobs.personio.de'
+            externalUrl
           }));
 
           // Combine the job postings from both sources
